@@ -9,14 +9,16 @@
 
 namespace zest { namespace zat {
   
-  struct Fragment : std::array< unsigned char, 4096> {
+  struct Fragment {
+    
+    static const std::uint32_t size = 4096;
 
     Fragment ( std::uint32_t fragment_position) 
     : m_offset(fragment_position)
     {}
 
     bool has_space_for(const std::string file_name) const {
-      return (m_free_area + FileInfo::size( file_name) ) < 4096;
+      return (m_free_area + FileInfo::size( file_name) ) < size;
     }
 
     FileInfo make_file_info( 
@@ -39,7 +41,7 @@ namespace zest { namespace zat {
 #ifdef TESTING_IT
   public:
     void force_fill_level( std::uint16_t bytes){
-      m_free_area = 4096 + bytes-1;
+      m_free_area = size + bytes-1;
     }
 #endif
   };

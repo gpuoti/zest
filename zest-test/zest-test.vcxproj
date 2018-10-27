@@ -72,19 +72,19 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(PlatformTarget)\$(ConfigurationName)\bin</OutDir>
+    <OutDir>$(PlatformTarget)\$(ConfigurationName)\bin\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(PlatformTarget)\$(ConfigurationName)\bin</OutDir>
+    <OutDir>$(PlatformTarget)\$(ConfigurationName)\bin\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(PlatformTarget)\$(ConfigurationName)\bin</OutDir>
+    <OutDir>$(PlatformTarget)\$(ConfigurationName)\bin\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(PlatformTarget)\$(ConfigurationName)\bin</OutDir>
+    <OutDir>$(PlatformTarget)\$(ConfigurationName)\bin\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -169,7 +169,9 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="zat\FileInfo_Test.cpp" />
     <ClCompile Include="zat\Fragment_Test.cpp" />
+    <ClCompile Include="zat\Zat_Test.cpp" />
     <ClCompile Include="zest-test.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

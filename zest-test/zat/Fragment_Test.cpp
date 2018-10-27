@@ -21,7 +21,7 @@ SCENARIO (
       {
         auto file_info = f.make_file_info( "this/is/a/test", ContentBlock { 2048, 123 } );
         CHECK(file_info.name == "this/is/a/test" );
-        CHECK(file_info.content_block == ContentBlock ({2048, 123}) );
+        CHECK(file_info.content_block == ContentBlock (2048, 123) );
         
         AND_THEN("the file_info is stored at the very beginning of the file"){
           CHECK( file_info.entry_offset == 0);
@@ -34,7 +34,7 @@ SCENARIO (
           auto second_file_info = f.make_file_info("this/is/a/second/test", { 2048+123, 211} );
           THEN("the fragment has still enought space to store the entry"){
             CHECK(second_file_info.name == "this/is/a/second/test" );
-            CHECK(second_file_info.content_block == ContentBlock ({2048+123, 211} ));
+            CHECK(second_file_info.content_block == ContentBlock (2048+123, 211 ));
           }
         }
       }
@@ -54,7 +54,7 @@ SCENARIO (
     THEN("it cannot store any more FileInfo object (even if it has no name at all)")
     {
       CHECK(!f.has_space_for(""));
-      REQUIRE_THROWS_AS(f.make_file_info ("", ContentBlock ({2048, 123}) ), std::logic_error );
+      REQUIRE_THROWS_AS(f.make_file_info ("", ContentBlock (2048, 123) ), std::logic_error );
     }
   }
 
@@ -66,7 +66,7 @@ SCENARIO (
     THEN("it cannot store any more FileInfo object (even if it has no name at all)")
     {
       CHECK(!f.has_space_for(""));
-      REQUIRE_THROWS_AS(f.make_file_info ("", ContentBlock ({2048, 123}) ), std::logic_error );
+      REQUIRE_THROWS_AS(f.make_file_info ("", ContentBlock (2048, 123) ), std::logic_error );
     }
   }
 
@@ -78,7 +78,7 @@ SCENARIO (
     THEN("it cannot store any more FileInfo object with a name as short as 1 char")
     {
       CHECK(!f.has_space_for("x"));
-      REQUIRE_THROWS_AS(f.make_file_info ("x", ContentBlock ({2048, 123}) ), std::logic_error );
+      REQUIRE_THROWS_AS(f.make_file_info ("x", ContentBlock (2048, 123) ), std::logic_error );
     }
   }
 }
