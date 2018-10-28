@@ -37,7 +37,7 @@ SCENARIO("Create not existing files","[CREATE]"){
     const ZAT& query_ftable = ftable;
 
     WHEN("create a new file named test_file"){
-      ftable.create("test_file");
+      auto finfo = ftable.create("test_file");
 
       THEN("it contains that file"){
         REQUIRE(ftable.exists("test_file"));
@@ -49,6 +49,19 @@ SCENARIO("Create not existing files","[CREATE]"){
         auto& finfo = query_ftable.info("test_file");
         REQUIRE(finfo.name == "test_file");
         REQUIRE(finfo.content_block.start_at > 0);
+      }
+      THEN("the device has the file name and its content block reference stored in finfo.entryoffset") {
+        std::uint16_t finfo_sz;
+        test_device.read_into_from((char*)&finfo_sz, finfo.entry_offset, sizeof(std::uint16_t));
+
+        REQUIRE(finfo_sz == (9 + 8) );
+
+        std::uint16_t fname_sz = finfo_sz = 2 * sizeof(std::uint32_t);
+        char fname[255];
+        test_device.read_into_from(fname, finfo.entry_offset + 1, fname_sz);
+        fname[fname_sz] = 0; 
+        REQUIRE( std::string(fname) == "test_file");
+
       }
 
       AND_WHEN("create another new file with name second_test") {
@@ -144,12 +157,57 @@ SCENARIO("Write a file on a mini-ramdisk", "[CREATE]") {
       THEN("the  previously exising file still hold its content") {
         auto existing_file = query_ftable.info("existing_file");
         REQUIRE(test_device.read(existing_file.content_block) == existing_content);
-      }
-      
+      } 
     }
+  }
+}
 
+SCENARIO("Read a file content using a stream like interface ") {
+  GIVEN("A ZAT created on a test_device with a simple test file on it") {
+    test::RamDsk test_device;
+    ZAT ftable(test_device);
+    const ZAT& query_ftable = ftable;
 
+    ftable.create( "test_file");
 
-    
+    {
+      auto w = ftable.writer("test_file");
+      w.write("Insert some data into the test_file.\n", std::strlen("Insert some data into the test_file.\n") );
+      w.write("And some more.", std::strlen("And some more."));
+    }
+    auto finfo = query_ftable.info("test_file");
+
+    GIVEN("a file reader for the test_file") {
+      auto r = query_ftable.reader("test_file");
+      WHEN("ask for 6 byte of data") {
+        char fdata[6];
+        r.read_into( fdata, 6 );
+
+        THEN("I get the string: Insert") {
+          std::string read_string (fdata, fdata +6);
+          REQUIRE( read_string == "Insert");
+        }
+
+        AND_WHEN("I read one more byte, discard it, and read 4 more") {
+          char discarded[1];
+          r.read_into(discarded, 1);
+          char more_data[4];
+          r.read_into(more_data, 4);
+
+          THEN("I get the string: some") {
+            std::string read_string (more_data, more_data + 4);
+            REQUIRE(read_string == "some");
+          }
+        }
+      }
+      WHEN("I read the complete file size") {
+        char mmap_file[4096];
+        r.read_into( mmap_file, finfo.content_block.size());
+        THEN("I get the complete file content into the buffer") {
+          std::string file_content (mmap_file, mmap_file + finfo.content_block.size());
+          REQUIRE(file_content == "Insert some data into the test_file.\nAnd some more.");
+        }
+      }
+    }
   }
 }

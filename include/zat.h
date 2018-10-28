@@ -72,8 +72,29 @@ struct Device {
       const zat::FileInfo& m_file_info;
     };
 
+    struct FileReader {
+      FileReader(const ZAT& fs, const zat::FileInfo& file_info)
+      : m_fs(fs), 
+        m_file_info(file_info)
+      {}
+
+      void read_into(char* buf, std::uint32_t sz) {
+        m_fs.m_device.read_into_from( buf, m_file_info.content_block.start_at + m_current_pos, sz);
+        m_current_pos += sz;
+      }
+
+    private:
+      const zat::FileInfo& m_file_info;
+      const ZAT& m_fs;
+      std::uint32_t m_current_pos = 0;
+    };
+
     FileWriter writer( const std::string fname ) { 
       return FileWriter(*this, info( fname) ); 
+    }
+
+    FileReader reader(const std::string fname) const {
+      return FileReader(*this, info(fname));
     }
 
     void append_to(const char* buf, std::uint32_t sz, const zat::FileInfo file_info) {
