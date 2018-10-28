@@ -34,7 +34,8 @@ struct ContentBlock {
   };
 
   bool operator !=(const ContentBlock& rho) const {
-    return ! operator==(rho);
+    return (start_at < rho.start_at && ends_at < rho.start_at)
+            || (start_at > rho.start_at && ends_at > rho.start_at);
   }
 
   bool unbounded() const {
@@ -45,6 +46,11 @@ struct ContentBlock {
     return ends_at - start_at;
   }
 };
+
+inline std::ostream& operator << (std::ostream& os, ContentBlock const& block) {
+  os << "ContentBlock [" << block.start_at << ", " <<block.ends_at << "]";
+  return os;
+}
 
 struct FileInfo {
   const std::string name;

@@ -115,10 +115,41 @@ SCENARIO("Write a file on a mini-ramdisk", "[CREATE]") {
             }
           }
         }
+      }
+    }
+  }
 
+  GIVEN("A ZAT binded to a zest debug device with one file already stored ") {
+    zest::test::RamDsk test_device;
+    ZAT ftable(test_device);
+    const ZAT& query_ftable = ftable;
 
+    std::string existing_content = "some stuff in the existing file";
+    ftable.create("existing_file");
+    {
+      auto w = ftable.writer("existing_file");
+      w.write(existing_content.c_str(), existing_content.size());
+    }
+
+    WHEN("I create another file and put some stuff into it") {
+      ftable.create("test_file");
+      auto w = ftable.writer("test_file");
+
+      w.write("some test stuff", std::strlen("some test stuff"));
+
+      THEN("their content block are different") {
+        REQUIRE(query_ftable.info("test_file").content_block != query_ftable.info("existing_file").content_block);
       }
 
+      THEN("the  previously exising file still hold its content") {
+        auto existing_file = query_ftable.info("existing_file");
+        REQUIRE(test_device.read(existing_file.content_block) == existing_content);
+      }
+      
     }
+
+
+
+    
   }
 }

@@ -62,7 +62,7 @@ struct Device {
         m_file_info(file_info)
       {}
 
-      FileWriter& write(char* buf, std::uint32_t sz) {
+      FileWriter& write(const char* buf, std::uint32_t sz) {
 
         m_fs.append_to( buf, sz, m_file_info);
         return *this;
@@ -76,11 +76,11 @@ struct Device {
       return FileWriter(*this, info( fname) ); 
     }
 
-    void append_to(char* buf, std::uint32_t sz, const zat::FileInfo file_info) {
+    void append_to(const char* buf, std::uint32_t sz, const zat::FileInfo file_info) {
       auto& finfo = info(file_info);
       std::uint32_t orig_sz = finfo.content_block.size();
 
-      auto extended_block = zat::ContentBlock{ fs_size, fs_size + orig_sz + sz };
+      auto extended_block = allocate_content_block( orig_sz + sz );
       m_device.copy(finfo.content_block, extended_block);
       finfo.substitute_block( std::move( extended_block ) );
       m_device.write_at( buf, sz, finfo.content_block.start_at + orig_sz );
@@ -113,6 +113,11 @@ struct Device {
       }
 
       return *fragment_it;
+    }
+
+    zat::ContentBlock allocate_content_block( const std::uint32_t sz) {
+      fs_size += sz;
+      return zat::ContentBlock( fs_size-sz, fs_size);
     }
   };
 }
